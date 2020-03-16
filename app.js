@@ -6,7 +6,7 @@ const app = express();
 const port = 3000;
 
 const readJson = fs.readFileSync('./data/series.json');
-const data = JSON.parse(readJson);
+let data = JSON.parse(readJson);
 
 app.set('views', './views'); // specify the views directory
 app.set('view engine', 'ejs'); // register the template engine
@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
 
 app.get('/add', (req, res) => {
 	res.render('add');
-})
+});
 
 app.post('/add', (req, res) => {
 	const { title, country } = req.body;
@@ -28,6 +28,52 @@ app.post('/add', (req, res) => {
 	data.push({ ID: data.length + 1, Title: title, Country: country });
 	fs.writeFileSync('./data/series.json', JSON.stringify(data, null, 4));
 	res.redirect('/');
-})
+});
+
+app.get('/edit/:id', (req, res) => {
+	const { id } = req.params;
+	let dataId;
+
+	for (let i = 0; i < data.length; i++) {
+		if (Number(id) === data[i].ID) {
+			dataId = i;
+		}
+	}
+
+	res.render('edit', { data: data[dataId] });
+});
+
+app.post('/edit/:id', (req, res) => {
+	const { id } = req.params;
+	const { title, country } = req.body;
+
+	let dataId;
+	for (let i = 0; i < data.length; i++) {
+		if (Number(id) === data[i].ID) {
+			dataId = i;
+		}
+	}
+
+	data[dataId].Title = title;
+	data[dataId].Country = country;
+
+	fs.writeFileSync('./data/series.json', JSON.stringify(data, null, 4));
+	res.redirect('/');
+});
+
+app.get('/delete/:id', (req, res) => {
+	const { id } = req.params;
+
+	const newData = [];
+	for (let i = 0; i < data.length; i++) {
+		if (Number(id) !== data[i].ID) {
+			newData.push(data[i]);
+		}
+	}
+
+	data = newData;
+	fs.writeFileSync('./data/series.json', JSON.stringify(data, null, 4));
+	res.redirect('/');
+});
 
 app.listen(port, () => console.log(`json-bread listening on port ${port}!`));
