@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/views'));
 
 app.get('/', (req, res) => {
-	const filter = req.query.filter;
+	const { filter } = req.query;
 	let filterData = [];
 
 	if (filter) {
@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
 		}
 	}
 
-	if (filterData.length < 1) {
+	if (!filter) {
 		filterData = data;
 	}
 
