@@ -15,7 +15,26 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/views'));
 
 app.get('/', (req, res) => {
-	res.render('index', { data });
+	const filter = req.query.filter;
+	let filterData = [];
+
+	if (filter) {
+		for (let dt of data) {
+			if (
+				dt.Title.toLowerCase() === filter.toLowerCase() ||
+				dt.Country.toLowerCase() === filter.toLowerCase() ||
+				dt.ID === parseFloat(filter)
+			) {
+				filterData.push(dt);
+			}
+		}
+	}
+
+	if (filterData.length < 1) {
+		filterData = data;
+	}
+
+	res.render('index', { data: filterData, filter });
 });
 
 app.get('/add', (req, res) => {
